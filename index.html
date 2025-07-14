@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Plan 2020 - Licenciatura en Administración (FCEA)</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f5f7fa;
+    margin: 20px;
+  }
+  h1 {
+    text-align: center;
+    color: #2c3e50;
+  }
+  #avance {
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: bold;
+  }
+  #tarjetas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+  }
+  .materia {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    padding: 15px 20px;
+    width: 260px;
+    box-sizing: border-box;
+    transition: border-left 0.3s ease;
+  }
+  .materia.habilitada {
+    border-left: 6px solid #27ae60;
+  }
+  .materia.no-habilitada {
+    border-left: 6px solid #7f8c8d;
+    opacity: 0.7;
+  }
+  .materia h3 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    color: #34495e;
+  }
+  .materia p {
+    margin: 5px 0;
+    font-size: 0.9em;
+  }
+  label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+  }
+  input[type="checkbox"] {
+    transform: scale(1.2);
+    margin-right: 8px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+  <h1>Plan 2020 - Licenciatura en Administración (FCEA)</h1>
+  <p id="avance">Avance: 0%</p>
+
+  <div id="tarjetas"></div>
+
+<script>
+  // Datos de materias Plan 2020 - Licenciatura en Administración (FCEA)
+  // Cada materia: id único, nombre, semestre (año y semestre), créditos, correlativas (array de ids)
+  const materias = [
+    // 1er semestre
+    {id:"adm1", nombre:"Administración y Gestión de las Organizaciones I", semestre:"1°", creditos:10, correlativas:[]},
+    {id:"cont1", nombre:"Conceptos Contables", semestre:"1°", creditos:10, correlativas:[]},
+    {id:"cal1", nombre:"Cálculo I", semestre:"1°", creditos:10, correlativas:[]},
+    {id:"eco1", nombre:"Economía I", semestre:"1°", creditos:10, correlativas:[]},
+    {id:"dir1", nombre:"Derecho I", semestre:"1°", creditos:10, correlativas:[]},
+    {id:"met1", nombre:"Métodos Cuantitativos", semestre:"1°", creditos:10, correlativas:["cal1"]},
+    // 2do semestre
+    {id:"adm2", nombre:"Administración y Gestión de las Organizaciones II", semestre:"2°", creditos:10, correlativas:["adm1"]},
+    {id:"cont2", nombre:"Contabilidad", semestre:"2°", creditos:10, correlativas:["cont1"]},
+    {id:"cal2", nombre:"Cálculo II", semestre:"2°", creditos:10, correlativas:["cal1"]},
+    {id:"eco2", nombre:"Economía II", semestre:"2°", creditos:10, correlativas:["eco1"]},
+    {id:"dir2", nombre:"Derecho II", semestre:"2°", creditos:10, correlativas:["dir1"]},
+    {id:"est", nombre:"Estadística", semestre:"2°", creditos:10, correlativas:["met1"]},
+    // 3er semestre
+    {id:"adm3", nombre:"Administración y Gestión de las Organizaciones III", semestre:"3°", creditos:10, correlativas:["adm2"]},
+    {id:"conint", nombre:"Contabilidad Intermedia", semestre:"3°", creditos:10, correlativas:["cont2"]},
+    {id:"mat3", nombre:"Matemática III", semestre:"3°", creditos:10, correlativas:["cal2"]},
+    {id:"eco3", nombre:"Economía III", semestre:"3°", creditos:10, correlativas:["eco2"]},
+    {id:"dir3", nombre:"Derecho III", semestre:"3°", creditos:10, correlativas:["dir2"]},
+    // 4to semestre
+    {id:"adm4", nombre:"Administración y Gestión de las Organizaciones IV", semestre:"4°", creditos:10, correlativas:["adm3"]},
+    {id:"contfin", nombre:"Contabilidad Financiera", semestre:"4°", creditos:10, correlativas:["conint"]},
+    {id:"mat4", nombre:"Matemática IV", semestre:"4°", creditos:10, correlativas:["mat3"]},
+    {id:"eco4", nombre:"Economía IV", semestre:"4°", creditos:10, correlativas:["eco3"]},
+    {id:"dir4", nombre:"Derecho IV", semestre:"4°", creditos:10, correlativas:["dir3"]},
+    // (Podés completar más si querés)
+  ];
+
+  // Estado de materias aprobadas (por id)
+  let aprobadas = new Set();
+
+  // Crear tarjeta HTML para cada materia
+  function crearTarjeta(materia, habilitada) {
+    const div = document.createElement('div');
+    div.classList.add('materia');
+    div.classList.add(habilitada ? 'habilitada' : 'no-habilitada');
+
+    const h3 = document.createElement('h3');
+    h3.textContent = materia.nombre;
+    div.appendChild(h3);
+
+    const pSem = document.createElement('p');
+    pSem.innerHTML = `<strong>Semestre:</strong> ${materia.semestre}`;
+    div.appendChild(pSem);
+
+    const pCred = document.createElement('p');
+    pCred.innerHTML = `<strong>Créditos:</strong> ${materia.creditos}`;
+    div.appendChild(pCred);
+
+    const pCorrel = document.createElement('p');
+    pCorrel.innerHTML = `<strong>Correlativas:</strong> ${materia.correlativas.length > 0 ? materia.correlativas.map(id => materias.find(m => m.id === id).nombre).join(', ') : 'Ninguna'}`;
+    div.appendChild(pCorrel);
+
+    const label = document.createElement('label');
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.checked = aprobadas.has(materia.id);
+    checkbox.disabled = !habilitada;
+    checkbox.addEventListener('change', () => {
+      if(checkbox.checked) aprobadas.add(materia.id);
+      else aprobadas.delete(materia.id);
+      renderizar();
+    });
+    label.appendChild(checkbox);
+    label.appendChild(document.createTextNode(' Aprobada'));
+    div.appendChild(label);
+
+    return div;
+  }
+
+  // Verificar si una materia está habilitada (todas las correlativas aprobadas)
+  function estaHabilitada(materia) {
+    return materia.correlativas.every(id => aprobadas.has(id));
+  }
+
+  // Renderizar todas las tarjetas y avance
+  function renderizar() {
+    const contenedor = document.getElementById('tarjetas');
+    contenedor.innerHTML = '';
+
+    let creditosTotales = 0;
+    let creditosAprobados = 0;
+
+    materias.forEach(materia => {
+      creditosTotales += materia.creditos;
+      const habilitada = estaHabilitada(materia);
+      const tarjeta = crearTarjeta(materia, habilitada);
+      contenedor.appendChild(tarjeta);
+
+      if (aprobadas.has(materia.id)) {
+        creditosAprobados += materia.creditos;
+      }
+    });
+
+    const avance = Math.round((creditosAprobados / creditosTotales) * 100);
+    document.getElementById('avance').textContent = `Avance: ${avance}%`;
+  }
+
+  // Render inicial
+  renderizar();
+</script>
+</body>
+</html>
